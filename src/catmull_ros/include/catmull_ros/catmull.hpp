@@ -36,6 +36,26 @@ public:
 
 	}
 
+	Vector3 getA0()
+	{
+		return a0;
+	}
+
+	Vector3 getA1()
+	{
+		return a1;
+	}
+
+	Vector3 getA2()
+	{
+		return a2;
+	}
+
+	Vector3 getA3()
+	{
+		return a3;
+	}
+
 	void initHermite()
 	{
 		double dtp1 = (next->getT() - t);
