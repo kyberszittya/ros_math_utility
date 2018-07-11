@@ -121,6 +121,10 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+ADD_DEFINITIONS(--coverage)
+set(CMAKE_SHARED_LINKER_FLAGS "--coverage")
+set(CMAKE_EXE_LINKER_FLAGS "--coverage")
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/catmull_ros.cpp
@@ -197,6 +201,5 @@ catkin_add_gtest(mathsimple_tests-test test/test_mathfunctions.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
-
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

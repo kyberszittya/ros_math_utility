@@ -48,7 +48,6 @@ TEST_P(VectorAdditionParameter, VectorAdditionP)
     ASSERT_EQ(
         std::tr1::get<2>(GetParam())+std::tr1::get<5>(GetParam()), res.z);
     ASSERT_LE((end-start).count()/10e9,2e-8);
-    //std::cout << "Total time spent: " << (end-start).count()/10e9 << std::endl;
 }
 
 INSTANTIATE_TEST_CASE_P(VectorAdditionSuite, VectorAdditionParameter,
@@ -62,11 +61,7 @@ INSTANTIATE_TEST_CASE_P(VectorAdditionSuite, VectorAdditionParameter,
         )
 );
 
-double dRand(double fMin, double fMax)
-{
-    double f = (double)rand() / RAND_MAX;
-    return fMin + f * (fMax - fMin);
-}
+
 
 TEST(VectorAdditionBasic, VectorOperationTestAdditionRandom)
 {
@@ -89,14 +84,160 @@ TEST(VectorAdditionBasic, VectorOperationTestAdditionRandom)
         Vector3 v0(x0, y0, z0);
         Vector3 v1(x1, y1, z1);
         auto start = std::chrono::system_clock::now();
-        Vector3 res = v0+v1;
+        Vector3 res = v0 + v1;
         auto end = std::chrono::system_clock::now();
         ASSERT_EQ(x0 + x1, res.x);
         ASSERT_EQ(y0 + y1, res.y);
         ASSERT_EQ(z0 + z1, res.z);
     }
     
-    //std::cout << "Total time spent: " << (end-start).count()/10e9 << std::endl;
+    
+}
+
+TEST(VectorMultiplyBasic, VectorOperationTestMultiplyRandom)
+{
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> uniform_dist(-100, 100);
+    int mean = uniform_dist(e1);
+    std::seed_seq seed2{r(), r(), r(), r(), r(), r(), r(), r()}; 
+    std::mt19937 e2(seed2);
+    std::normal_distribution<> normal_dist(mean, 2);
+    int steps = 100;
+    for (int n = 0; n < steps; n++)
+    {
+        const double x0 = normal_dist(e2);
+        const double x1 = normal_dist(e2);
+        const double y0 = normal_dist(e2);
+        const double y1 = normal_dist(e2);
+        const double z0 = normal_dist(e2);
+        const double z1 = normal_dist(e2);
+        Vector3 v0(x0, y0, z0);
+        Vector3 v1(x1, y1, z1);
+        auto start = std::chrono::system_clock::now();
+        Vector3 res = v0 * v1;
+        auto end = std::chrono::system_clock::now();
+        ASSERT_EQ(x0 * x1, res.x);
+        ASSERT_EQ(y0 * y1, res.y);
+        ASSERT_EQ(z0 * z1, res.z);
+    }
+    
+    
+}
+
+TEST(VectorMultiplyBasic, VectorOperationTestMultiplyDoubleRandom2)
+{
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> uniform_dist(-100, 100);
+    int mean = uniform_dist(e1);
+    std::seed_seq seed2{r(), r(), r(), r(), r(), r(), r(), r()}; 
+    std::mt19937 e2(seed2);
+    std::normal_distribution<> normal_dist(mean, 2);
+    int steps = 100;
+    for (int n = 0; n < steps; n++)
+    {
+        const double x0 = normal_dist(e2);
+        const double y0 = normal_dist(e2);
+        const double z0 = normal_dist(e2);
+        const double num = normal_dist(e2);
+        Vector3 v0(x0, y0, z0);
+        auto start = std::chrono::system_clock::now();
+        Vector3 res = num * v0;
+        auto end = std::chrono::system_clock::now();
+        ASSERT_EQ(x0 * num, res.x);
+        ASSERT_EQ(y0 * num, res.y);
+        ASSERT_EQ(z0 * num, res.z);
+    }
+    
+    
+}
+
+TEST(VectorSubtractionBasic, VectorOperationTestSubtractionRandom)
+{
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> uniform_dist(-100, 100);
+    int mean = uniform_dist(e1);
+    std::seed_seq seed2{r(), r(), r(), r(), r(), r(), r(), r()}; 
+    std::mt19937 e2(seed2);
+    std::normal_distribution<> normal_dist(mean, 2);
+    int steps = 100;
+    for (int n = 0; n < steps; n++)
+    {
+        const double x0 = normal_dist(e2);
+        const double x1 = normal_dist(e2);
+        const double y0 = normal_dist(e2);
+        const double y1 = normal_dist(e2);
+        const double z0 = normal_dist(e2);
+        const double z1 = normal_dist(e2);
+        Vector3 v0(x0, y0, z0);
+        Vector3 v1(x1, y1, z1);
+        auto start = std::chrono::system_clock::now();
+        Vector3 res = v0 - v1;
+        auto end = std::chrono::system_clock::now();
+        ASSERT_EQ(x0 - x1, res.x);
+        ASSERT_EQ(y0 - y1, res.y);
+        ASSERT_EQ(z0 - z1, res.z);
+    }
+    
+    
+}
+
+TEST(VectorMultiplyBasic, VectorOperationTestMultiplyDoubleRandom)
+{
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> uniform_dist(-100, 100);
+    int mean = uniform_dist(e1);
+    std::seed_seq seed2{r(), r(), r(), r(), r(), r(), r(), r()}; 
+    std::mt19937 e2(seed2);
+    std::normal_distribution<> normal_dist(mean, 2);
+    int steps = 100;
+    for (int n = 0; n < steps; n++)
+    {
+        const double x0 = normal_dist(e2);
+        const double y0 = normal_dist(e2);
+        const double z0 = normal_dist(e2);
+        const double num = normal_dist(e2);
+        Vector3 v0(x0, y0, z0);
+        auto start = std::chrono::system_clock::now();
+        Vector3 res = v0 * num;
+        auto end = std::chrono::system_clock::now();
+        ASSERT_EQ(x0 * num, res.x);
+        ASSERT_EQ(y0 * num, res.y);
+        ASSERT_EQ(z0 * num, res.z);
+    }
+    
+    
+}
+
+TEST(VectorDivideBasic, VectorOperationTestDivideDoubleRandom)
+{
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_real_distribution<double> uniform_dist(-100, 100);
+    int mean = uniform_dist(e1);
+    std::seed_seq seed2{r(), r(), r(), r(), r(), r(), r(), r()}; 
+    std::mt19937 e2(seed2);
+    std::normal_distribution<> normal_dist(mean, 2);
+    int steps = 100;
+    for (int n = 0; n < steps; n++)
+    {
+        const double x0 = normal_dist(e2);
+        const double y0 = normal_dist(e2);
+        const double z0 = normal_dist(e2);
+        const double num = normal_dist(e2);
+        Vector3 v0(x0, y0, z0);
+        auto start = std::chrono::system_clock::now();
+        Vector3 res = v0 / num;
+        auto end = std::chrono::system_clock::now();
+        ASSERT_EQ(x0 / num, res.x);
+        ASSERT_EQ(y0 / num, res.y);
+        ASSERT_EQ(z0 / num, res.z);
+    }
+    
+    
 }
 
 int main(int argc, char **argv)

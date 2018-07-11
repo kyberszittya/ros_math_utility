@@ -26,100 +26,100 @@ private:
 	Vector3 a2;
 	Vector3 a3;
 public:
-	ControlVertex(Vector3 p, double t): t(t), p(p)
+	ControlVertex(Vector3 p, double t=0.0): t(t), p(p)
 	{
         		
 	}
 
-	ControlVertex(Vector3 p) : p(p)
-	{
-
-	}
-
-	Vector3 getA0()
+	
+	Vector3 A0()
 	{
 		return a0;
 	}
 
-	Vector3 getA1()
+	Vector3 A1()
 	{
 		return a1;
 	}
 
-	Vector3 getA2()
+	Vector3 A2()
 	{
 		return a2;
 	}
 
-	Vector3 getA3()
+	Vector3 A3()
 	{
 		return a3;
 	}
 
-	void initHermite()
+	void InitHermite()
 	{
-		double dtp1 = (next->getT() - t);
 		a0 = p;
 		a1 = v;
-		a2 = (3.0*(next->getP() - p) / (dtp1*dtp1))
-			- (next->getV() + 2.0*v) / (dtp1);
-		a3 = (2.0*(p - next->getP()) / (dtp1*dtp1*dtp1)) 
-			+ (next->getV() + v) / (dtp1*dtp1);
+		if (next!=nullptr)
+		{
+			double dtp1 = (next->T() - t);			
+			a2 = (3.0*(next->P() - p) / (dtp1*dtp1))
+				- (next->V() + 2.0*v) / (dtp1);
+			a3 = (2.0*(p - next->P()) / (dtp1*dtp1*dtp1)) 
+				+ (next->V() + v) / (dtp1*dtp1);
+		}
+		
 	}
 
-	
-
-	void initializeStart(std::shared_ptr<ControlVertex> prev,
+	void InitializeStart(std::shared_ptr<ControlVertex> prev,
 		std::shared_ptr<ControlVertex> next)
 	{
 		this->prev = prev;
 		this->next = next;
 		this->t = 0.0;
-	}
-	
+	}	
 
-	void initialize(std::shared_ptr<ControlVertex> prev, 
-		std::shared_ptr<ControlVertex> next)
+	void Initialize(std::shared_ptr<ControlVertex> next,
+		std::shared_ptr<ControlVertex> prev=nullptr)
 	{
 		this->prev = prev;
-		this->next = next;
-		double dx = p.x - prev->getP().x;
-		double dy = p.y - prev->getP().y;
-		this->t = sqrt(dx*dx + dy * dy)+prev->getT();
+		this->next = next;		
+		double dx = p.x - prev->P().x;
+		double dy = p.y - prev->P().y;
+		if (prev!=nullptr)
+		{
+			this->t = sqrt(dx*dx + dy * dy)+prev->T();
+		}
 	}
 
-	void initializeVelocity()
+	void InitializeVelocity()
 	{
-		Vector3 pm1 = prev->getP();
+		Vector3 pm1 = prev->P();
 		double tm1 = 0.0;
 		double dxm1 = p.x - pm1.x;
 		double dym1 = p.y - pm1.y;
 		double t0 = sqrt(dxm1*dxm1 + dym1 * dym1);
 
-		Vector3 pp1 = next->getP();
+		Vector3 pp1 = next->P();
 		double dxp1 = pp1.x - p.x;
 		double dyp1 = pp1.y - p.y;
 		double t1 = sqrt(dxp1*dxp1 + dyp1 * dyp1) + t0;
 
 		double dtp1 = (t1 - t0);
 		double dtm1 = (t0 - tm1);
-		v = (((next->getP() - p) / dtp1) +
-			((p - prev->getP()) / dtm1)) / 2.0;
+		v = (((next->P() - p) / dtp1) +
+			((p - prev->P()) / dtm1)) / 2.0;
 	}
 
-	void initHermiteClose()
+	void InitHermiteClose()
 	{
-		Vector3 pp1 = next->getP();
+		Vector3 pp1 = next->P();
 		double dxp1 = pp1.x - p.x;
 		double dyp1 = pp1.y - p.y;
 		double t1 = sqrt(dxp1*dxp1 + dyp1 * dyp1) + t;
 		double dtp1 = (t1 - t);
 		a0 = p;
 		a1 = v;
-		a2 = (3.0*(next->getP() - p) / (dtp1*dtp1))
-			- (next->getV() + 2.0*v) / (dtp1);
-		a3 = (2.0*(p - next->getP()) / (dtp1*dtp1*dtp1))
-			+ (next->getV() + v) / (dtp1*dtp1);
+		a2 = (3.0*(next->P() - p) / (dtp1*dtp1))
+			- (next->V() + 2.0*v) / (dtp1);
+		a3 = (2.0*(p - next->P()) / (dtp1*dtp1*dtp1))
+			+ (next->V() + v) / (dtp1*dtp1);
 	}
 
 	Vector3 ddhermite(double t0)
@@ -134,23 +134,23 @@ public:
 		return 3.0*a3 * (dt*dt) + 2.0*a2 * dt + a1;
 	}
 
-	Vector3 hermite(double t0)
+	Vector3 Hermite(double t0)
 	{
 		double dt = t0 - t;
 		return a3 * (dt*dt*dt) + a2 * dt*dt + a1 * dt + a0;
 	}
 
-	double getT()
+	double T()
 	{
 		return t;
 	}
 
-	Vector3 getP()
+	Vector3 P()
 	{
 		return p;
 	}
 
-	Vector3 getV()
+	Vector3 V()
 	{
 		return v;
 	}
@@ -176,18 +176,18 @@ public:
 	{
 		for (int i = 0; i < vertices.size()-1; i++)
 		{
-			if (vertices[i]->getT()<=t && vertices[i+1]->getT()>t) 
+			if (vertices[i]->T()<=t && vertices[i+1]->T()>t) 
 			{
-				return vertices[i]->hermite(t);
+				return vertices[i]->Hermite(t);
 			}
 		}
-		if (closed)
+		if (closed 
+			&& 
+			vertices[vertices.size() - 1]->T() <= t && max_t > t)
 		{
-			if (vertices[vertices.size() - 1]->getT() <= t && max_t > t)
-			{
-				return vertices[vertices.size() - 1]->hermite(t);
-			}
+			return vertices[vertices.size() - 1]->Hermite(t);
 		}
+	
 		
 		Vector3 res;
 		return res;
@@ -197,19 +197,17 @@ public:
 	{
 		for (int i = 0; i < vertices.size() - 1; i++)
 		{
-			if (vertices[i]->getT() <= t && vertices[i + 1]->getT()>t)
+			if (vertices[i]->T() <= t && vertices[i + 1]->T()>t)
 			{
 				return vertices[i]->ddhermite(t);
 			}
 		}
-		if (closed)
+		if (closed &&
+			vertices[vertices.size() - 1]->T() <= t && max_t > t)
 		{
-			if (vertices[vertices.size() - 1]->getT() <= t && max_t > t)
-			{
-				return vertices[vertices.size() - 1]->ddhermite(t);
-			}
+			return vertices[vertices.size() - 1]->ddhermite(t);
 		}
-
+		
 		Vector3 res;
 		return res;
 	}
@@ -218,24 +216,23 @@ public:
 	{
 		for (int i = 0; i < vertices.size() - 1; i++)
 		{
-			if (vertices[i]->getT() <= t && vertices[i + 1]->getT()>t)
+			if (vertices[i]->T() <= t && vertices[i + 1]->T()>t)
 			{
 				return vertices[i]->dhermite(t);
 			}
 		}
-		if (closed)
+		if (closed
+			&&	
+			vertices[vertices.size() - 1]->T() <= t && max_t > t)
 		{
-			if (vertices[vertices.size() - 1]->getT() <= t && max_t > t)
-			{
 				return vertices[vertices.size() - 1]->dhermite(t);
-			}
 		}
 
 		Vector3 res;
 		return res;
 	}
 
-	void addControlVertex(Vector3 p)
+	void AddControlVertex(Vector3 p)
 	{
 		std::shared_ptr<ControlVertex> cv =
 			std::shared_ptr<ControlVertex>(new ControlVertex(p));
@@ -243,7 +240,7 @@ public:
 		
 	}
 
-	void addControlVertex(Vector3 p, double t)
+	void AddControlVertex(Vector3 p, double t)
 	{
 		std::shared_ptr<ControlVertex> cv = 
 			std::shared_ptr<ControlVertex>(new ControlVertex(p, t));
@@ -255,49 +252,49 @@ public:
 		return vertices[i];
 	}
 
-	double getMinT()
+	double GetMinT()
 	{
 		return min_t;
 	}
 
-	double getMaxT()
+	double GetMaxT()
 	{
 		return max_t;
 	}
 
-	void close()
+	void Close()
 	{
 		closed = true;
 
-		Vector3 p = vertices[vertices.size() - 1]->getP();
+		Vector3 p = vertices[vertices.size() - 1]->P();
 
-		Vector3 pp1 = vertices[0]->getP();
+		Vector3 pp1 = vertices[0]->P();
 		double dxp1 = pp1.x - p.x;
 		double dyp1 = pp1.y - p.y;
-		double t1 = sqrt(dxp1*dxp1 + dyp1 * dyp1) + vertices[vertices.size() - 1]->getT();
+		double t1 = sqrt(dxp1*dxp1 + dyp1 * dyp1) + vertices[vertices.size() - 1]->T();
 
 		max_t = t1;
 	}
 
-	void constructClose()
+	void ConstructClose()
 	{
 		
-		vertices[0]->initializeStart(vertices[vertices.size() - 1],
+		vertices[0]->InitializeStart(vertices[vertices.size() - 1],
 			vertices[1]);
 		for (int i = 1; i < vertices.size()-1; i++)
 		{
-			vertices[i]->initialize(vertices[i - 1], vertices[i + 1]);
+			vertices[i]->Initialize(vertices[i - 1], vertices[i + 1]);
 		}
-		vertices[vertices.size() - 1]->initialize(vertices[vertices.size() - 2], vertices[0]);
-		close();
+		vertices[vertices.size() - 1]->Initialize(vertices[vertices.size() - 2], vertices[0]);
+		Close();
 
 		for (int i = 0; i < vertices.size(); i++)
 		{
-			vertices[i]->initializeVelocity();
+			vertices[i]->InitializeVelocity();
 		}
 		for (const auto& v : vertices)
 		{
-			double tmp = v->getT();
+			double tmp = v->T();
 			if (tmp < min_t)
 			{
 				min_t = tmp;
@@ -309,9 +306,9 @@ public:
 		}
 		for (int i = 0; i < vertices.size()-1; i++)
 		{
-			vertices[i]->initHermite();
+			vertices[i]->InitHermite();
 		}
-		vertices[vertices.size() - 1]->initHermiteClose();
+		vertices[vertices.size() - 1]->InitHermiteClose();
 	}
 };
 }
