@@ -1,3 +1,6 @@
+/*
+* Testing the Catmull-Rom functions
+*/
 #include "../include/catmull_ros/catmull.hpp"
 
 #include <gtest/gtest.h>
@@ -15,45 +18,83 @@ TEST(CatmullRomBasic, HermiteInterpolationTestTrivial)
     
     cv0.InitHermite();
     
-    ASSERT_DOUBLE_EQ(0.0, cv0.A0().x);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A0().y);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A0().z);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A1().x);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A1().y);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A1().z);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A2().x);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A2().y);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A2().z);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A3().x);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A2().y);
-    ASSERT_DOUBLE_EQ(0.0, cv0.A2().z);
+    ASSERT_DOUBLE_EQ(0.0, cv0.A0().X());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A0().Y());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A0().Z());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A1().X());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A1().Y());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A1().Z());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A2().X());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A2().Y());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A2().Z());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A3().X());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A2().Y());
+    ASSERT_DOUBLE_EQ(0.0, cv0.A2().Z());
     Vector3 hermite_res = cv0.Hermite(2.0);
-    ASSERT_DOUBLE_EQ(0.0, hermite_res.x);
-    ASSERT_DOUBLE_EQ(0.0, hermite_res.y);
-    ASSERT_DOUBLE_EQ(0.0, hermite_res.z);
+    ASSERT_DOUBLE_EQ(0.0, hermite_res.X());
+    ASSERT_DOUBLE_EQ(0.0, hermite_res.Y());
+    ASSERT_DOUBLE_EQ(0.0, hermite_res.Z());
 }
 
-
-TEST(CatmullRomBasic, TwoPointsCatmull)
+TEST(CatmullRomBasic, SinglePointSpline)
 {
-    
     Vector3 p0(0.0, 0.0, 0.0);
-    double t0 = 0.0;
-    Vector3 p1(1.0, 1.0, 1.0);
-    double t1 = 1.0;
-    
-    std::shared_ptr<ControlVertex> cv0(new ControlVertex(p0,t0));
-    std::shared_ptr<ControlVertex> cv1(new ControlVertex(p1,t1));
-    cv0->Initialize(cv0, cv1);
-    cv1->InitHermite();
-    
-    
+    CatmullSpline cspline;
+    cspline.AddControlVertex(p0);
+    cspline.Construct();
+    ASSERT_EQ(0.0,cspline.GetControlVertex(0)->A0().GetSquaredNorm());
+    ASSERT_EQ(0.0,cspline.GetControlVertex(0)->A1().GetSquaredNorm());
+    ASSERT_EQ(0.0,cspline.GetControlVertex(0)->A2().GetSquaredNorm());
+    ASSERT_EQ(0.0,cspline.GetControlVertex(0)->A3().GetSquaredNorm());
 }
 
-TEST(CatmullRomBasic, LinearFunction)
+TEST(CatmullRomBasic, SinglePointSpline0)
+{
+    Vector3 p0(1.0, 1.0, 1.0);
+    CatmullSpline cspline;
+    cspline.AddControlVertex(p0);
+    cspline.Construct();
+    ASSERT_DOUBLE_EQ(3.0,cspline.GetControlVertex(0)->A0().GetSquaredNorm());
+    ASSERT_DOUBLE_EQ(0.0,cspline.GetControlVertex(0)->A1().GetSquaredNorm());
+    ASSERT_DOUBLE_EQ(0.0,cspline.GetControlVertex(0)->A2().GetSquaredNorm());
+    ASSERT_DOUBLE_EQ(0.0,cspline.GetControlVertex(0)->A3().GetSquaredNorm());
+    ASSERT_DOUBLE_EQ(3.0, cspline.r(0.0).GetSquaredNorm());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(90.0).GetSquaredNorm());
+}
+
+TEST(CatmullRomBasic, TwoPointFunction)
 {
     Vector3 p0(0.0, 0.0, 0.0);
     Vector3 p1(1.0, 1.0, 1.0);
+    CatmullSpline cspline;
+    cspline.AddControlVertex(p0);
+    cspline.AddControlVertex(p1);
+    cspline.Construct();
+    ASSERT_DOUBLE_EQ(0.0, cspline.GetControlVertex(0)->T());
+    ASSERT_DOUBLE_EQ(sqrt(3), cspline.GetControlVertex(1)->T());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).X());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Y());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Z());
+    
+    ASSERT_DOUBLE_EQ(1.0, cspline.r(sqrt(3)).X());
+    ASSERT_DOUBLE_EQ(1.0, cspline.r(sqrt(3)).Y());
+    ASSERT_DOUBLE_EQ(1.0, cspline.r(sqrt(3)).Z());
+}
+
+TEST(CatmullRomBasic, ThreePointFunction)
+{
+    Vector3 p0(0.0, 0.0, 0.0);
+    Vector3 p1(1.0, 1.0, 1.0);
+    Vector3 p2(3.0, 4.0, 5.0);
+    CatmullSpline cspline;
+    cspline.AddControlVertex(p0);
+    cspline.AddControlVertex(p1);
+    cspline.AddControlVertex(p2);
+    cspline.Construct();
+    ASSERT_DOUBLE_EQ(0.0, cspline.GetControlVertex(0)->T());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).X());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Y());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Z());    
 }
 
 int main(int argc, char **argv)
