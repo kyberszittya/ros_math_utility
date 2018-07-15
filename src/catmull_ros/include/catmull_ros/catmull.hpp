@@ -112,7 +112,7 @@ public:
 		this->t = sqrt(dx*dx + dy * dy)+prev->T();
 	}
 
-	void Initialize(std::shared_ptr<ControlVertex> next)
+	void InitializeStart(std::shared_ptr<ControlVertex> next)
 	{
 		this->prev = nullptr;
 		this->next = next;		
@@ -389,11 +389,12 @@ public:
 	{
 		if (vertices.size()!=1)
 		{
-			vertices[0]->Initialize(vertices[1]);
-			for (int i = 1; i < vertices.size()-2; i++)
+			vertices[0]->InitializeStart(vertices[1]);
+			for (int i = 1; i < vertices.size()-1; i++)
 			{
 				vertices[i]->Initialize(vertices[i - 1], vertices[i + 1]);
 			}
+
 			vertices[vertices.size()-1]->InitializeEnd(
 				vertices[vertices.size()-2]);
 			for (int i = 0; i < vertices.size(); i++)

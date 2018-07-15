@@ -97,6 +97,24 @@ TEST(CatmullRomBasic, ThreePointFunction)
     ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Z());    
 }
 
+TEST(CatmullRomBasic, FourPointFunction)
+{
+    Vector3 p0(0.0, 0.0, 0.0);
+    Vector3 p1(1.0, 1.0, 1.0);
+    Vector3 p2(3.0, 4.0, 5.0);
+    Vector3 p3(4.0, 4.0, 5.0);
+    CatmullSpline cspline;
+    cspline.AddControlVertex(p0);
+    cspline.AddControlVertex(p1);
+    cspline.AddControlVertex(p2);
+    cspline.AddControlVertex(p3);
+    cspline.Construct();
+    ASSERT_DOUBLE_EQ(0.0, cspline.GetControlVertex(0)->T());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).X());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Y());
+    ASSERT_DOUBLE_EQ(0.0, cspline.r(0).Z());    
+}
+
 int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
